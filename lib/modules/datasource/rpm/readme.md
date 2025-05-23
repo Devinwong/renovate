@@ -1,6 +1,6 @@
 This datasource `rpm` returns releases of the RPM packages.
 It assumes the RPM repository is following the RPM standard and by default it has a repomd.xml in the directory provided by user in the `registryUrl`.
-According to this Pulp project doc, https://docs.pulpproject.org/en/2.10/plugins/pulp_rpm/tech-reference/rpm.html,
+According to this Pulp project doc, <https://docs.pulpproject.org/en/2.10/plugins/pulp_rpm/tech-reference/rpm.html>,
 
 > repomd.xml is the metadata file that clients use to discover what repository metadata files exist in the repository. It should always be located at repodata/repomd.xml relative to the root of the repository.
 
