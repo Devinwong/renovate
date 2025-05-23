@@ -5,7 +5,6 @@ import { HOST_DISABLED } from '../../../constants/error-messages';
 import { logger } from '../../../logger';
 import { ExternalHostError } from '../../../types/errors/external-host-error';
 import { type Http, HttpError } from '../../../util/http';
-import { PackageHttpCacheProvider } from '../../../util/http/cache/package-http-cache-provider';
 import type { HttpOptions, HttpResponse } from '../../../util/http/types';
 import { regEx } from '../../../util/regex';
 import { Result } from '../../../util/result';
@@ -64,13 +63,6 @@ function isUnsupportedHostError(err: HttpError): boolean {
   return err.name === 'UnsupportedProtocolError';
 }
 
-const cacheProvider = new PackageHttpCacheProvider({
-  namespace: 'datasource-maven:cache-provider',
-  softTtlMinutes: 15,
-  checkAuthorizationHeader: true,
-  checkCacheControlHeader: false, // Maven doesn't respond with `cache-control` headers
-});
-
 export async function downloadHttpProtocol(
   http: Http,
   pkgUrl: URL | string,
@@ -78,7 +70,7 @@ export async function downloadHttpProtocol(
 ): Promise<MavenFetchResult> {
   const url = pkgUrl.toString();
   const fetchResult = await Result.wrap<HttpResponse, Error>(
-    http.getText(url, { ...opts, cacheProvider }),
+    http.getText(url, opts),
   )
     .transform((res): MavenFetchSuccess => {
       const result: MavenFetchSuccess = { data: res.body };

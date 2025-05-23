@@ -7,7 +7,7 @@ import type { BranchCache } from '../util/cache/repository/types';
 import { writeSystemFile } from '../util/fs';
 import { getS3Client, parseS3Url } from '../util/s3';
 import type { ExtractResult } from '../workers/repository/process/extract-update';
-import type { LibYearsWithStatus, Report } from './types';
+import type { Report } from './types';
 
 const report: Report = {
   problems: [],
@@ -50,15 +50,22 @@ export function addExtractionStats(
 
 export function addLibYears(
   config: RenovateConfig,
-  libYearsWithDepCount: LibYearsWithStatus,
+  managerLibYears: Record<string, number>,
+  totalLibYears: number,
+  totalDepsCount: number,
+  outdatedDepsCount: number,
 ): void {
   if (is.nullOrUndefined(config.reportType)) {
     return;
   }
 
   coerceRepo(config.repository!);
-  report.repositories[config.repository!].libYearsWithStatus =
-    libYearsWithDepCount;
+  report.repositories[config.repository!].libYears = {
+    managerLibYears,
+    totalLibYears,
+    totalDepsCount,
+    outdatedDepsCount,
+  };
 }
 
 export function finalizeReport(): void {

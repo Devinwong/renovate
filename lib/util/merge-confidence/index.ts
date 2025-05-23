@@ -6,7 +6,6 @@ import { ExternalHostError } from '../../types/errors/external-host-error';
 import * as packageCache from '../cache/package';
 import * as hostRules from '../host-rules';
 import { Http } from '../http';
-import { memCacheProvider } from '../http/cache/memory-http-cache-provider';
 import { regEx } from '../regex';
 import { ensureTrailingSlash, joinUrlParts } from '../url';
 import { MERGE_CONFIDENCE } from './common';
@@ -170,9 +169,7 @@ async function queryApi(
   let confidence: MergeConfidence = 'neutral';
   try {
     const res = (
-      await http.getJsonUnchecked<{ confidence: MergeConfidence }>(url, {
-        cacheProvider: memCacheProvider,
-      })
+      await http.getJsonUnchecked<{ confidence: MergeConfidence }>(url)
     ).body;
     if (isMergeConfidence(res.confidence)) {
       confidence = res.confidence;

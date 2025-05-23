@@ -40,10 +40,7 @@ function updatePackageRegistries(
   for (const url of urls) {
     const registryAlreadyKnown = packageRegistries.some(
       (item) =>
-        item.registryUrl === url.registryUrl &&
-        item.scope === url.scope &&
-        item.registryType === url.registryType &&
-        item.content === url.content,
+        item.registryUrl === url.registryUrl && item.scope === url.scope,
     );
     if (!registryAlreadyKnown) {
       packageRegistries.push(url);

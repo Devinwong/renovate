@@ -37,6 +37,7 @@ Start by reading:
 - [Running Renovate](./getting-started/running.md)
 - [Troubleshooting](./troubleshooting.md)
 - [Known limitations](./known-limitations.md)
+- [Release notes for major versions](./release-notes-for-major-versions.md)
 
 ## Intermediate
 

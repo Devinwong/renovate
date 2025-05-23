@@ -20,7 +20,6 @@ import * as queue from '../../util/http/queue';
 import * as throttle from '../../util/http/throttle';
 import { addSplit, getSplits, splitInit } from '../../util/split';
 import {
-  AbandonedPackageStats,
   DatasourceCacheStats,
   HttpCacheStats,
   HttpStats,
@@ -150,7 +149,6 @@ export async function renovateRepository(
   HttpCacheStats.report();
   LookupStats.report();
   ObsoleteCacheHitLogger.report();
-  AbandonedPackageStats.report();
   const cloned = isCloned();
   logger.info({ cloned, durationMs: splits.total }, 'Repository finished');
   resetRepositoryLogLevelRemaps();

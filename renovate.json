@@ -76,7 +76,10 @@
     },
     {
       "description": "require approval on next branch",
-      "matchPackageNames": ["*"],
+      "matchPackageNames": [
+        "!ghcr.io/containerbase/sidecar",
+        "!ghcr.io/renovatebot/base-image"
+      ],
       "matchBaseBranches": ["next"],
       "dependencyDashboardApproval": true
     }
@@ -84,7 +87,7 @@
   "customManagers": [
     {
       "customType": "regex",
-      "managerFilePatterns": ["config/options/index.ts"],
+      "fileMatch": ["config/options/index.ts"],
       "matchStrings": [
         "default: '(?<depName>ghcr.io/containerbase/sidecar):(?<currentValue>.*)'"
       ],

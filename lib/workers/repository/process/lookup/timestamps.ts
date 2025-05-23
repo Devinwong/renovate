@@ -8,19 +8,19 @@ import type { VersioningApi } from '../../../../modules/versioning/types';
 import { asTimestamp } from '../../../../util/timestamp';
 
 /**
- * Calculates the `mostRecentTimestamp` value for a set of releases.
+ * Calculates the `bumpedAt` value for a set of releases.
  *
  * This function determines the highest release (a release with the highest version)
  * and checks if its timestamp is also the highest among all releases.
- * If so, it assigns that timestamp as the `mostRecentTimestamp` value in the result.
+ * If so, it assigns that timestamp as the `bumpedAt` value in the result.
  * This helps identify if the package was abandoned.
  *
- * The function skips setting `mostRecentTimestamp` if:
+ * The function skips setting `bumpedAt` if:
  * - No releases could be determined as the highest (e.g. for invalid versions)
  * - The highest release is deprecated
  * - A lower version has a more recent timestamp than the highest version
  *
- * @returns The `ReleaseResult` value, potentially updated with a `mostRecentTimestamp` timestamp
+ * @returns The `ReleaseResult` value, potentially updated with a `bumpedAt` timestamp
  */
 export function calculateLatestReleaseBump(
   versioningApi: VersioningApi,
@@ -46,17 +46,14 @@ export function calculateLatestReleaseBump(
         continue;
       }
     } catch {
-      logger.trace(
-        { lookupName },
-        'Error calculating "mostRecentTimestamp" value',
-      );
+      logger.trace({ lookupName }, 'Error calculating "bumpedAt" value');
     }
   }
 
   if (!highestRelease) {
     logger.trace(
       { lookupName },
-      'Could not determine the highest release to calculate "mostRecentTimestamp" value',
+      'Could not determine the highest release to calculate "bumpedAt" value',
     );
     return releaseResult;
   }
@@ -64,7 +61,7 @@ export function calculateLatestReleaseBump(
   if (highestRelease.isDeprecated) {
     logger.trace(
       { lookupName },
-      'Highest release is deprecated, skip calculating "mostRecentTimestamp" value',
+      'Highest release is deprecated, skip calculating "bumpedAt" value',
     );
     return releaseResult;
   }
@@ -84,16 +81,16 @@ export function calculateLatestReleaseBump(
     if (!higherTimestampExists) {
       logger.trace(
         { lookupName },
-        'Using "mostRecentTimestamp" value because it is the highest timestamp of the highest release version',
+        'Using "bumpedAt" value because it is the highest timestamp of the highest release version',
       );
-      releaseResult.mostRecentTimestamp = highestReleaseTimestamp;
+      releaseResult.bumpedAt = highestReleaseTimestamp;
       return releaseResult;
     }
   }
 
   logger.trace(
     { lookupName },
-    'Skip using "mostRecentTimestamp" value because the higher timestamp exists for lower version',
+    'Skip using "bumpedAt" value because the higher timestamp exists for lower version',
   );
   return releaseResult;
 }

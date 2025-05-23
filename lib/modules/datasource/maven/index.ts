@@ -1,4 +1,5 @@
 import type { XmlDocument } from 'xmldoc';
+import { GlobalConfig } from '../../../config/global';
 import { logger } from '../../../logger';
 import * as packageCache from '../../../util/cache/package';
 import { asTimestamp } from '../../../util/timestamp';
@@ -92,9 +93,38 @@ export class MavenDatasource extends Datasource {
     repoUrl: string,
   ): Promise<MetadataResults> {
     const metadataUrl = getMavenUrl(dependency, repoUrl, 'maven-metadata.xml');
+
+    const cacheNamespace = 'datasource-maven:metadata-xml';
+    const cacheKey = `v3:${metadataUrl}`;
+    const cachedVersions = await packageCache.get<MetadataResults>(
+      cacheNamespace,
+      cacheKey,
+    );
+    /* v8 ignore next 3 -- TODO: add test */
+    if (cachedVersions) {
+      return cachedVersions;
+    }
+
     const metadataXmlResult = await downloadMavenXml(this.http, metadataUrl);
     return metadataXmlResult
-      .transform(({ data: metadata }) => extractVersions(metadata))
+      .transform(
+        async ({
+          isCacheable,
+          data: mavenMetadata,
+        }): Promise<MetadataResults> => {
+          const versions = extractVersions(mavenMetadata);
+          const cachePrivatePackages = GlobalConfig.get(
+            'cachePrivatePackages',
+            false,
+          );
+
+          if (cachePrivatePackages || isCacheable) {
+            await packageCache.set(cacheNamespace, cacheKey, versions, 30);
+          }
+
+          return versions;
+        },
+      )
       .onError((err) => {
         logger.debug(
           `Maven: error fetching versions for "${dependency.display}": ${err.type}`,
@@ -162,7 +192,7 @@ export class MavenDatasource extends Datasource {
       ? `postprocessRelease:${registryUrl}:${packageName}:${versionOrig}:${version}`
       : `postprocessRelease:${registryUrl}:${packageName}:${version}`;
     const cachedResult = await packageCache.get<PostprocessReleaseResult>(
-      'datasource-maven:postprocess-reject',
+      'datasource-maven',
       cacheKey,
     );
 
@@ -191,14 +221,7 @@ export class MavenDatasource extends Datasource {
     if (err) {
       const result: PostprocessReleaseResult =
         err.type === 'not-found' ? 'reject' : release;
-      if (result === 'reject') {
-        await packageCache.set(
-          'datasource-maven:postprocess-reject',
-          cacheKey,
-          result,
-          24 * 60,
-        );
-      }
+      await packageCache.set('datasource-maven', cacheKey, result, 24 * 60);
       return result;
     }
 
@@ -206,6 +229,7 @@ export class MavenDatasource extends Datasource {
       release.releaseTimestamp = asTimestamp(val.lastModified);
     }
 
+    await packageCache.set('datasource-maven', cacheKey, release, 7 * 24 * 60);
     return release;
   }
 }

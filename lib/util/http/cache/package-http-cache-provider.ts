@@ -12,9 +12,9 @@ import type { HttpCache } from './schema';
 
 export interface PackageHttpCacheProviderOptions {
   namespace: PackageCacheNamespace;
-  softTtlMinutes?: number;
-  checkCacheControlHeader: boolean;
-  checkAuthorizationHeader: boolean;
+  ttlMinutes?: number;
+  checkCacheControlHeader?: boolean;
+  checkAuthorizationHeader?: boolean;
 }
 
 export class PackageHttpCacheProvider extends AbstractHttpCacheProvider {
@@ -28,15 +28,18 @@ export class PackageHttpCacheProvider extends AbstractHttpCacheProvider {
 
   constructor({
     namespace,
-    softTtlMinutes = 15,
-    checkCacheControlHeader = false,
-    checkAuthorizationHeader = false,
+    ttlMinutes = 15,
+    checkCacheControlHeader = true,
+    checkAuthorizationHeader = true,
   }: PackageHttpCacheProviderOptions) {
     super();
     this.namespace = namespace;
-    const ttl = resolveTtlValues(this.namespace, softTtlMinutes);
-    this.softTtlMinutes = ttl.softTtlMinutes;
-    this.hardTtlMinutes = ttl.hardTtlMinutes;
+    const { softTtlMinutes, hardTtlMinutes } = resolveTtlValues(
+      this.namespace,
+      ttlMinutes,
+    );
+    this.softTtlMinutes = softTtlMinutes;
+    this.hardTtlMinutes = hardTtlMinutes;
     this.checkCacheControlHeader = checkCacheControlHeader;
     this.checkAuthorizationHeader = checkAuthorizationHeader;
   }

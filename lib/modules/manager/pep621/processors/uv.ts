@@ -231,7 +231,7 @@ function generateCMD(updatedDeps: Upgrade[]): string {
   for (const dep of updatedDeps) {
     switch (dep.depType) {
       case depTypes.optionalDependencies: {
-        deps.push(dep.depName!);
+        deps.push(dep.depName!.split('/')[1]);
         break;
       }
       case depTypes.uvDevDependencies:

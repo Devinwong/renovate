@@ -1,7 +1,6 @@
 import { DateTime } from 'luxon';
 import type { RenovateConfig } from '../../../config/types';
 import { addLibYears } from '../../../instrumentation/reporting';
-import type { LibYearsWithStatus } from '../../../instrumentation/types';
 import { logger } from '../../../logger';
 import type { PackageFile } from '../../../modules/manager/types';
 
@@ -14,7 +13,6 @@ interface DepInfo {
   outdated?: boolean;
   libYear?: number;
 }
-
 export function calculateLibYears(
   config: RenovateConfig,
   packageFiles?: Record<string, PackageFile[]>,
@@ -73,26 +71,26 @@ export function calculateLibYears(
       }
     }
   }
-  const libYearsWithStatus = getLibYears(allDeps);
-  logger.debug(libYearsWithStatus, 'Repository libYears');
 
-  addLibYears(config, libYearsWithStatus);
-}
-
-function getLibYears(allDeps: DepInfo[]): LibYearsWithStatus {
   const [totalDepsCount, outdatedDepsCount, totalLibYears] = getCounts(allDeps);
   const managerLibYears = getManagerLibYears(allDeps);
+  logger.debug(
+    {
+      managerLibYears,
+      totalLibYears,
+      totalDepsCount,
+      outdatedDepsCount,
+    },
+    'Repository libYears',
+  );
 
-  return {
-    libYears: {
-      managers: managerLibYears,
-      total: totalLibYears,
-    },
-    dependencyStatus: {
-      outdated: outdatedDepsCount,
-      total: totalDepsCount,
-    },
-  };
+  addLibYears(
+    config,
+    managerLibYears,
+    totalLibYears,
+    totalDepsCount,
+    outdatedDepsCount,
+  );
 }
 
 function getManagerLibYears(deps: DepInfo[]): Record<string, number> {

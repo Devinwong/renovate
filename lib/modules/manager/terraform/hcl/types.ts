@@ -2,7 +2,6 @@ export interface TerraformDefinitionFile {
   terraform?: TerraformBlock[];
   module?: Record<string, TerraformModule[]>;
   resource?: TerraformResources;
-  data?: Record<string, unknown>; // generic docker data sources
   provider?: Record<string, TerraformProvider[]>;
 }
 

@@ -8,9 +8,9 @@ export { extractPackageFile } from './extract';
 export const url = '../../../config-presets.md';
 
 export const defaultConfig = {
-  managerFilePatterns: configFileNames.filter(
-    (name) => name !== 'package.json',
-  ),
+  fileMatch: configFileNames
+    .filter((name) => name !== 'package.json')
+    .map((name) => `^${name.replaceAll('.', '\\.')}$`),
 };
 
 export const supportedDatasources = [
